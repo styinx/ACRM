@@ -1,6 +1,6 @@
 import ac
-import app.ac_gui as gui
-import app.ac_lib as lib
+import acrm.ac_gui as gui
+import acrm.ac_lib as lib
 
 
 def acMain(ac_version):
@@ -9,7 +9,7 @@ def acMain(ac_version):
     app_name = "ACRM"
     x = 200
     y = 200
-    w = 250
+    w = 450
     h = 300
 
     # Speedometer
@@ -19,11 +19,6 @@ def acMain(ac_version):
     app_speedometer.children.append(speedometer)
 
     ac.addRenderCallback(app_speedometer.app, glRender)
-
-    # Car Status
-
-
-    # Stats
 
     return app_name
 

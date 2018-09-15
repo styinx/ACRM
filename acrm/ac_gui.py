@@ -1,6 +1,7 @@
 import ac
+from time import time
 from math import sin, cos, pi
-from app.ac_lib import GL, Color, Point, ACCAR, ACLAP
+from acrm.ac_lib import GL, Color, ACCAR, ACLAP
 
 
 class ACObject(object):
@@ -95,7 +96,8 @@ class ACObject(object):
             self._font_color = font_color
 
             if self.ac_obj != 0:
-                ac.setFontColor(self.ac_obj, self._font_color.r, self._font_color.g, self._font_color.b, self._font_color.a)
+                ac.setFontColor(self.ac_obj, self._font_color.r, self._font_color.g, self._font_color.b,
+                                self._font_color.a)
 
     @property
     def background_texture(self):
@@ -198,7 +200,6 @@ class App:
         self.h = h
         self.app = ac.newApp(app_name)
         ac.setTitle(self.app, app_name)
-        ac.setPosition(self.app, self.x, self.y)
         ac.setSize(self.app, self.w, self.h)
         ac.setIconPosition(self.app, 0, -10000)
         ac.setTitlePosition(self.app, 0, -10000)
@@ -210,6 +211,7 @@ class App:
     def update(self):
         ac.setBackgroundColor(self.app, 0, 0, 0)
         ac.setBackgroundOpacity(self.app, 0)
+        ac.setBackgroundTexture(self.app, "apps/python/ACRM/acrm.png")
         # for child in self.children:
         #     child.update()
 
@@ -228,16 +230,17 @@ class Speedometer:
         self.shift_color = 0
         self.tyre_color = [Color(0, 0.7, 0, 1)] * 4
         self.brake_color = [Color(0, 0.7, 0, 1)] * 4
+        self.dmg_color = [Color(0, 0.7, 0, 1)] * 5
 
         self.green = Color(0.0, 0.7, 0, 1)
-        self.lime = Color(0.3, 0.5, 0.1, 1)
-        self.yellow = Color(0.7, 0.7, 0, 1)
+        self.lime = Color(0.3, 0.6, 0.1, 1)
+        self.yellow = Color(0.8, 0.8, 0, 1)
         self.orange = Color(1, 0.7, 0, 1)
         self.red = Color(0.8, 0, 0, 1)
         self.blue = Color(0.1, 0.5, 0.8, 1)
 
         self.gear = ac.addLabel(app, "")
-        ac.setPosition(self.gear, self.x_offset + 80, self.y_offset - 100)
+        ac.setPosition(self.gear, self.x_offset + 75, self.y_offset - 100)
         ac.setFontSize(self.gear, 100)
 
         self.tyre_FL = ac.addLabel(app, "")
@@ -252,57 +255,66 @@ class Speedometer:
         ac.setFontAlignment(self.speed, "right")
 
         self.speed_unit_top = ac.addLabel(app, "")
-        ac.setPosition(self.speed_unit_top, self.x_offset + 160, self.y_offset + 10)
-        ac.setFontSize(self.speed_unit_top, 30)
+        ac.setPosition(self.speed_unit_top, self.x_offset + 165, self.y_offset + 15)
+        ac.setFontSize(self.speed_unit_top, 20)
         ac.setFontColor(self.speed_unit_top, 0.1, 0.5, 0.8, 1)
 
         self.speed_unit_bot = ac.addLabel(app, "")
-        ac.setPosition(self.speed_unit_bot, self.x_offset + 170, self.y_offset + 40)
-        ac.setFontSize(self.speed_unit_bot, 30)
+        ac.setPosition(self.speed_unit_bot, self.x_offset + 175, self.y_offset + 45)
+        ac.setFontSize(self.speed_unit_bot, 20)
         ac.setFontColor(self.speed_unit_bot, 0.1, 0.5, 0.8, 1)
 
         self.rpm = ac.addLabel(app, "")
-        ac.setPosition(self.rpm, self.x_offset + 150, self.y_offset + 70)
-        ac.setFontSize(self.rpm, 30)
+        ac.setPosition(self.rpm, self.x_offset + 50, self.y_offset + 70)
+        ac.setFontSize(self.rpm, 20)
         ac.setFontAlignment(self.rpm, "right")
 
         self.rpm_unit = ac.addLabel(app, "")
-        ac.setPosition(self.rpm_unit, self.x_offset + 150, self.y_offset + 70)
-        ac.setFontSize(self.rpm_unit, 30)
+        ac.setPosition(self.rpm_unit, self.x_offset + 55, self.y_offset + 70)
+        ac.setFontSize(self.rpm_unit, 20)
         ac.setFontColor(self.rpm_unit, 0.1, 0.5, 0.8, 1)
 
+        self.fuel = ac.addLabel(app, "")
+        ac.setPosition(self.fuel, self.x_offset + 155, self.y_offset + 70)
+        ac.setFontSize(self.fuel, 20)
+
         self.best_lap = ac.addLabel(app, "")
-        ac.setPosition(self.best_lap, self.x_offset + 380, self.y_offset - 90)
-        ac.setFontSize(self.best_lap, 30)
+        ac.setPosition(self.best_lap, self.x_offset + 330, self.y_offset - 90)
+        ac.setFontSize(self.best_lap, 20)
         ac.setFontAlignment(self.best_lap, "right")
         ac.setFontColor(self.best_lap, 0, 0.7, 0, 1)
 
         self.last_lap = ac.addLabel(app, "")
-        ac.setPosition(self.last_lap, self.x_offset + 380, self.y_offset - 60)
-        ac.setFontSize(self.last_lap, 30)
+        ac.setPosition(self.last_lap, self.x_offset + 330, self.y_offset - 70)
+        ac.setFontSize(self.last_lap, 20)
         ac.setFontAlignment(self.last_lap, "right")
 
         self.current_lap = ac.addLabel(app, "")
-        ac.setPosition(self.current_lap, self.x_offset + 380, self.y_offset - 30)
-        ac.setFontSize(self.current_lap, 30)
+        ac.setPosition(self.current_lap, self.x_offset + 330, self.y_offset - 50)
+        ac.setFontSize(self.current_lap, 20)
         ac.setFontAlignment(self.current_lap, "right")
 
         self.delta_lap = ac.addLabel(app, "")
-        ac.setPosition(self.delta_lap, self.x_offset + 380, self.y_offset)
-        ac.setFontSize(self.delta_lap, 30)
+        ac.setPosition(self.delta_lap, self.x_offset + 350, self.y_offset + 30)
+        ac.setFontSize(self.delta_lap, 20)
         ac.setFontAlignment(self.delta_lap, "right")
 
         self.prev_car = ac.addLabel(app, "")
-        ac.setPosition(self.prev_car, self.x_offset + 400, self.y_offset + 60)
-        ac.setFontSize(self.prev_car, 30)
+        ac.setPosition(self.prev_car, self.x_offset + 350, self.y_offset + 50)
+        ac.setFontSize(self.prev_car, 20)
         ac.setFontAlignment(self.prev_car, "right")
         ac.setFontColor(self.prev_car, 0.7, 0, 0, 1)
 
         self.next_car = ac.addLabel(app, "")
-        ac.setPosition(self.next_car, self.x_offset + 400, self.y_offset + 90)
-        ac.setFontSize(self.next_car, 30)
+        ac.setPosition(self.next_car, self.x_offset + 350, self.y_offset + 70)
+        ac.setFontSize(self.next_car, 20)
         ac.setFontAlignment(self.next_car, "right")
         ac.setFontColor(self.next_car, 0, 0.7, 0, 1)
+
+        self.best = ACLAP.getBestLapTime()
+        self.last = ACLAP.getLastLapTime()
+        self.blink = 0
+        self.ts = 0
 
         self.update()
 
@@ -314,12 +326,37 @@ class Speedometer:
         ac.setText(self.speed_unit_bot, "h")
         ac.setText(self.rpm, "{0:.0f}".format(ACCAR.getRPM()))
         ac.setText(self.rpm_unit, "rpm")
+        ac.setText(self.fuel, "{0:.1f} l".format(ACCAR.getFuel()))
         ac.setText(self.best_lap, "B: {0}".format(ACLAP.getBestLap()))
         ac.setText(self.last_lap, "L: {0}".format(ACLAP.getLastLap()))
         ac.setText(self.current_lap, "C: {0}".format(ACLAP.getCurrentLap()))
         ac.setText(self.delta_lap, "D: {0}".format(ACLAP.getLapDelta()))
         ac.setText(self.prev_car, "P: {0}".format(ACCAR.getPrevCarDiff()))
         ac.setText(self.next_car, "N: {0}".format(ACCAR.getNextCarDiff()))
+
+        # Lap Delta
+        if ACLAP.getLapDeltaTime() < 0:
+            ac.setFontColor(self.delta_lap, 0, 0.7, 0, 1)
+        elif ACLAP.getLapDeltaTime() > 0:
+            ac.setFontColor(self.delta_lap, 0.7, 0, 0, 1)
+        else:
+            ac.setFontColor(self.delta_lap, 1, 1, 1, 1)
+
+        # # Best Lap
+        # if self.best != ACLAP.getBestLapTime():
+        #     self.ts = time()
+        #     self.blink = 5
+        #     ac.setBackgroundColor(self.best_lap, 0, 0.7, 0)
+        #
+        # if self.blink > 0:
+        #     if self.blink % 2 == 0:
+        #         ac.setBackgroundColor(self.best_lap, 0, 0, 0)
+        #         ac.setBackgroundOpacity(self.best_lap, 0)
+        #     else:
+        #         ac.setBackgroundColor(self.best_lap, 0, 0.7, 0)
+        #     if time() > self.ts + 1:
+        #         self.ts = time()
+        #         self.blink -= 1
 
         # Tyres
         for i in range(0, 4):
@@ -335,18 +372,33 @@ class Speedometer:
             elif 60 > tyre_wear > 50:
                 self.tyre_color[i] = self.red
 
+        # Brakes
         for i in range(0, 4):
             brake_temp = ACCAR.getBrakeTemperature(i)
-            if brake_temp > 90:
+            if brake_temp < 50:
                 self.brake_color[i] = self.green
-            elif 90 > brake_temp > 80:
+            elif 50 < brake_temp < 70:
                 self.brake_color[i] = self.lime
-            elif 80 > brake_temp > 70:
+            elif 70 < brake_temp < 90:
                 self.brake_color[i] = self.yellow
-            elif 70 > brake_temp > 60:
+            elif 90 < brake_temp < 110:
                 self.brake_color[i] = self.orange
-            elif 60 > brake_temp > 50:
+            elif 110 < brake_temp < 130:
                 self.brake_color[i] = self.red
+
+        # Damage
+        for i in range(0, 5):
+            damage = ACCAR.getCarDamage(i)
+            if damage == 0:
+                self.dmg_color[i] = self.green
+            elif 10 < damage < 30:
+                self.dmg_color[i] = self.lime
+            elif 30 < damage < 50:
+                self.dmg_color[i] = self.yellow
+            elif 50 < damage < 70:
+                self.dmg_color[i] = self.orange
+            elif 70 < damage < 100:
+                self.dmg_color[i] = self.red
 
         # Shifting
         self.shift_progress = ACCAR.getRPM() / ACCAR.getRPMMax()
@@ -371,29 +423,66 @@ class Speedometer:
         # Gear __ Speed separator
         GL.rect(self.x_offset + 80, self.y_offset + 15, 120, 4)
 
-        # Tyres
-        GL.rect(self.x_offset + 150, self.y_offset - 65, 20, 30, self.tyre_color[0])
-        GL.rect(self.x_offset + 150, self.y_offset - 65, 20, 30, filled=False)
-        GL.rect(self.x_offset + 165, self.y_offset - 60, 10, 20, self.brake_color[0])
-        GL.rect(self.x_offset + 165, self.y_offset - 60, 10, 20, filled=False)
+        # Tyres TL | TR | BL | BR
 
-        GL.rect(self.x_offset + 190, self.y_offset - 65, 20, 30, self.brake_color[1])
-        GL.rect(self.x_offset + 190, self.y_offset - 65, 20, 30, filled=False)
-        GL.rect(self.x_offset + 185, self.y_offset - 60, 10, 20, self.tyre_color[1])
-        GL.rect(self.x_offset + 185, self.y_offset - 60, 10, 20, filled=False)
+        tyre_width = 15
+        tyre_height = 40
+        tyre_x1 = 155
+        tyre_x2 = 195
+        tyre_y1 = -85
+        tyre_y2 = -40
+        brake_offset = 3
+        brake_width = 5
+        brake_height = 15
+        brake_x1 = tyre_x1 + tyre_width - brake_offset
+        brake_x2 = tyre_x2 - brake_offset
+        brake_y1 = tyre_y1 + (tyre_height - brake_height) / 2
+        brake_y2 = tyre_y2 + (tyre_height - brake_height) / 2
+        damage_width = 5
+        damage_offset = 5
+        damage_y1 = tyre_y1 - damage_offset - damage_width
+        damage_y2 = tyre_y1
+        damage_x1 = tyre_x1 + damage_offset
+        damage_x2 = tyre_x1 - damage_offset - damage_width
+        damage_x3 = tyre_x2 + tyre_width + damage_offset
+        damage_space_w = tyre_width * 2 + 10
+        damage_space_h = tyre_height * 2 + 5
 
-        GL.rect(self.x_offset + 150, self.y_offset - 30, 20, 30, self.brake_color[2])
-        GL.rect(self.x_offset + 150, self.y_offset - 30, 20, 30, filled=False)
-        GL.rect(self.x_offset + 165, self.y_offset - 25, 10, 20, self.tyre_color[2])
-        GL.rect(self.x_offset + 165, self.y_offset - 25, 10, 20, filled=False)
+        GL.rect(self.x_offset + tyre_x1, self.y_offset + tyre_y1, tyre_width, tyre_height, self.tyre_color[0])
+        GL.rect(self.x_offset + tyre_x1, self.y_offset + tyre_y1, tyre_width, tyre_height, filled=False)
+        GL.rect(self.x_offset + brake_x1, self.y_offset + brake_y1, brake_width, brake_height, self.brake_color[0])
+        GL.rect(self.x_offset + brake_x1, self.y_offset + brake_y1, brake_width, brake_height, filled=False)
 
-        GL.rect(self.x_offset + 190, self.y_offset - 30, 20, 30, self.brake_color[3])
-        GL.rect(self.x_offset + 190, self.y_offset - 30, 20, 30, filled=False)
-        GL.rect(self.x_offset + 185, self.y_offset - 25, 10, 20, self.tyre_color[3])
-        GL.rect(self.x_offset + 185, self.y_offset - 25, 10, 20, filled=False)
+        GL.rect(self.x_offset + tyre_x2, self.y_offset + tyre_y1, tyre_width, tyre_height, self.tyre_color[1])
+        GL.rect(self.x_offset + tyre_x2, self.y_offset + tyre_y1, tyre_width, tyre_height, filled=False)
+        GL.rect(self.x_offset + brake_x2, self.y_offset + brake_y1, brake_width, brake_height, self.brake_color[1])
+        GL.rect(self.x_offset + brake_x2, self.y_offset + brake_y1, brake_width, brake_height, filled=False)
+
+        GL.rect(self.x_offset + tyre_x1, self.y_offset + tyre_y2, tyre_width, tyre_height, self.tyre_color[2])
+        GL.rect(self.x_offset + tyre_x1, self.y_offset + tyre_y2, tyre_width, tyre_height, filled=False)
+        GL.rect(self.x_offset + brake_x1, self.y_offset + brake_y2, brake_width, brake_height, self.brake_color[2])
+        GL.rect(self.x_offset + brake_x1, self.y_offset + brake_y2, brake_width, brake_height, filled=False)
+
+        GL.rect(self.x_offset + tyre_x2, self.y_offset + tyre_y2, tyre_width, tyre_height, self.tyre_color[3])
+        GL.rect(self.x_offset + tyre_x2, self.y_offset + tyre_y2, tyre_width, tyre_height, filled=False)
+        GL.rect(self.x_offset + brake_x2, self.y_offset + brake_y2, brake_width, brake_height, self.brake_color[3])
+        GL.rect(self.x_offset + brake_x2, self.y_offset + brake_y2, brake_width, brake_height, filled=False)
+
+        # Damage T | L | B | R | ?
+        GL.rect(self.x_offset + damage_x1, self.y_offset + damage_y1, damage_space_w, damage_width, self.dmg_color[0])
+        GL.rect(self.x_offset + damage_x1, self.y_offset + damage_y1, damage_space_w, damage_width, filled=False)
+        GL.rect(self.x_offset + damage_x2, self.y_offset + damage_y2, damage_width, damage_space_h, self.dmg_color[2])
+        GL.rect(self.x_offset + damage_x2, self.y_offset + damage_y2, damage_width, damage_space_h, filled=False)
+        GL.rect(self.x_offset + damage_x1, self.y_offset + damage_offset, damage_space_w, damage_width, self.dmg_color[1])
+        GL.rect(self.x_offset + damage_x1, self.y_offset + damage_offset, damage_space_w, damage_width, filled=False)
+        GL.rect(self.x_offset + damage_x3, self.y_offset + damage_y2, damage_width, damage_space_h, self.dmg_color[3])
+        GL.rect(self.x_offset + damage_x3, self.y_offset + damage_y2, damage_width, damage_space_h, filled=False)
+
+        # GL.rect(self.x_offset + 183, self.y_offset - 40, 8, 15, Color(0, 0.4, 0.7, 1))
+        # GL.rect(self.x_offset + 183, self.y_offset - 40, 8, 15, filled=False)
 
         # Speed Unit Separator ___
-        GL.rect(self.x_offset + 160, self.y_offset + 45, 45, 3)
+        GL.rect(self.x_offset + 160, self.y_offset + 45, 40, 3)
 
         # Speed Indicator
         radius_outter = 240
@@ -412,15 +501,21 @@ class Speedometer:
                 GL.line(c_x + (sin(rad) * radius_outter), c_y - (cos(rad) * radius_outter),
                         c_x + (sin(rad) * radius_inner), c_y - (cos(rad) * radius_inner))
 
-            rad_progress = (rad - 1.5 * pi) / (0.5 * pi)
-            if self.shift_progress >= rad_progress:
-                GL.line(c_x + (sin(rad) * radius_outter), c_y - (cos(rad) * radius_outter),
-                        c_x + (sin(rad) * radius_inner), c_y - (cos(rad) * radius_inner), self.shift_color)
+                rad_progress = (rad - 1.5 * pi) / (0.5 * pi)
+                if self.shift_progress >= rad_progress:
+                    GL.line(c_x + (sin(rad) * radius_outter), c_y - (cos(rad) * radius_outter),
+                            c_x + (sin(rad) * radius_inner), c_y - (cos(rad) * radius_inner), self.shift_color)
             rad += rad_step
             step += 1
-        
+
+        # Fuel
+        fuel_consumption = ACCAR.getFuel() / ACCAR.getMaxFuel()
+        fuel_bar = fuel_consumption * 20
+        GL.rect(self.x_offset + 135, self.y_offset + 75 + (20 - fuel_bar), 8, fuel_bar, self.green)
+        GL.rect(self.x_offset + 135, self.y_offset + 75, 8, 20, filled=False)
+
         # Lap Progress
         lap_progress = ACCAR.getLocation()
-        GL.rect(self.x_offset - 20, self.y_offset + 110, lap_progress * radius_outter, 6, self.blue)
-        GL.line(self.x_offset - 20, self.y_offset + 110, self.x_offset - 20, self.y_offset + 120)
-        GL.line(self.x_offset + radius_inner, self.y_offset + 110, self.x_offset + radius_inner, self.y_offset + 120)
+        GL.rect(self.x_offset, self.y_offset + 120, lap_progress * radius_inner, 6, self.blue)
+        GL.line(self.x_offset, self.y_offset + 120, self.x_offset, self.y_offset + 130)
+        GL.line(self.x_offset + radius_inner, self.y_offset + 120, self.x_offset + radius_inner, self.y_offset + 130)

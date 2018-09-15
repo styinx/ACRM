@@ -2,7 +2,7 @@ import ac
 import acsys
 import sys
 import os
-from math import pi, sin, cos
+from math import sin, cos
 import platform
 
 if platform.architecture()[0] == "64bit":
@@ -257,11 +257,14 @@ class ACLAP:
 
     @staticmethod
     def getLapDelta(car=0):
-        time = ac.getCarState(car, acsys.CS.PerformanceMeter)
-        if time > 0:
-            return formatTime(time)
+        time = ac.getCarState(car, acsys.CS.PerformanceMeter) * 1000
+        if time != 0:
+            if time < 0:
+                return "-" + formatTime(abs(time))
+            elif time > 0:
+                return "+" + formatTime(abs(time))
         else:
-            return "00:00.000"
+            return "-00:00.000"
 
     @staticmethod
     def isLapInvalidated(car=0):
@@ -289,17 +292,9 @@ class ACCAR:
         return ac.getFocusedCar()
 
     @staticmethod
-    def getCarDamage(loc="front"):
-        if loc == "front":
-            return info.physics.carDamage[0]
-        elif loc == "rear":
-            return info.physics.carDamage[1]
-        elif loc == "left":
-            return info.physics.carDamage[2]
-        elif loc == "right":
-            return info.physics.carDamage[3]
-        else:
-            return info.physics.carDamage[4]
+    def getCarDamage(loc=0):
+        # 0: Front, 1: Rear, 2: Left, 3: Right, 4:
+        return info.physics.carDamage[loc]
 
     @staticmethod
     def getPrevCarDiffTime():
@@ -331,7 +326,6 @@ class ACCAR:
                 return " +{:3.1f}".format(laps) + " Lap"
         else:
             return "+" + formatTime(int(time * 1000))
-
 
     @staticmethod
     def getNextCarDiffTime():
@@ -456,11 +450,15 @@ class ACCAR:
 
     @staticmethod
     def getTyreDirtyLevel(tyre=0):
-        return info.physics.tyreDirtyLevel
+        return info.physics.tyreDirtyLevel[tyre]
 
     @staticmethod
     def getTyreCompund():
         return info.graphics.tyreCompound
+
+    @staticmethod
+    def getCarModel():
+        return info.static.carModel
 
     @staticmethod
     def getTyreTemp(tyre=0, loc="m"):
