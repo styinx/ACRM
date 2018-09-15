@@ -13,4 +13,4 @@ Assetto Corsa App that shows all relevant car and race data:
 - best lap
 - lap delta
 
-![Overview](https://github.com/styinx/ACBIB/blob/master/example.png)
+![Overview](https://github.com/styinx/ACRM/blob/master/example.png)
